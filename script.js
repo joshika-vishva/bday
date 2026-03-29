@@ -2,7 +2,7 @@
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
 // Global State
-let userName = "panda boii moule ❤️‍🩹";
+let userName = "panda boii moulee ❤️‍🩹";
 let isMusicPlaying = false;
 
 // Elements
