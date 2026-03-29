@@ -485,10 +485,44 @@
         const progressBar = document.getElementById('progress-bar');
         const playerBar = document.getElementById('player-bar');
 
+        // Initial setup for the background music based on shared state
+        window.onload = () => {
+            const savedMusicTime = localStorage.getItem('music-current-time');
+            const wasPlaying = localStorage.getItem('music-is-playing') === 'true';
+
+            if (savedMusicTime && bgAudio) {
+                bgAudio.currentTime = parseFloat(savedMusicTime);
+            }
+
+            if (wasPlaying && bgAudio) {
+                bgAudio.play().then(() => {
+                    playerBar.classList.add('playing');
+                }).catch(e => console.log("Autoplay blocked on songs page", e));
+            }
+        };
+
+        // Periodically save background music time
+        setInterval(() => {
+            if (bgAudio && !bgAudio.paused) {
+                localStorage.setItem('music-current-time', bgAudio.currentTime);
+                localStorage.setItem('music-is-playing', 'true');
+            }
+        }, 1000);
+
+        // Save state on navigation as well
+        window.addEventListener('beforeunload', () => {
+            if (bgAudio) {
+                localStorage.setItem('music-current-time', bgAudio.currentTime);
+                localStorage.setItem('music-is-playing', !bgAudio.paused);
+            }
+        });
+
         // Play main background song on interaction if blocked
         document.body.addEventListener('click', () => {
             if (bgAudio.paused && !Array.from(musicTabs).some(t => t.classList.contains('playing'))) {
-                bgAudio.play().catch(e => console.log("BG Audio play failed", e));
+                bgAudio.play().then(() => {
+                    localStorage.setItem('music-is-playing', 'true');
+                }).catch(e => console.log("BG Audio play failed", e));
             }
         }, { once: true });
 
@@ -500,12 +534,14 @@
                 playlistAudio.pause();
                 element.classList.remove('playing');
                 bgAudio.play();
+                localStorage.setItem('music-is-playing', 'true');
                 songDisplayName.textContent = "Background Track";
                 playerBar.classList.remove('playing');
                 return;
             }
 
             bgAudio.pause();
+            localStorage.setItem('music-is-playing', 'false'); // Currently playlist track is non-persistent for simplicity
             musicTabs.forEach(t => t.classList.remove('playing', 'active'));
 
             if (src) {
@@ -544,6 +580,7 @@
         playlistAudio.addEventListener('ended', () => {
             musicTabs.forEach(t => t.classList.remove('playing'));
             bgAudio.play();
+            localStorage.setItem('music-is-playing', 'true');
             songDisplayName.textContent = "Background Track";
             playerBar.classList.remove('playing');
         });

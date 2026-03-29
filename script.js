@@ -18,8 +18,59 @@ const footer = document.getElementById('footer');
 
 // 0. Initial Setup
 window.onload = () => {
-    document.body.classList.add('locked');
-    if (passwordInput) passwordInput.focus();
+    const isUnlocked = localStorage.getItem('site-unlocked') === 'true';
+    const savedMusicTime = localStorage.getItem('music-current-time');
+    const wasMusicPlaying = localStorage.getItem('music-is-playing') === 'true';
+
+    if (isUnlocked) {
+        // Skip entry modal and intro
+        nameModal.classList.add('hidden');
+        nameModal.style.display = 'none';
+        mainContent.classList.remove('hidden');
+        topNav.classList.remove('hidden');
+        document.getElementById('chatbot-container').classList.remove('hidden');
+        footer.classList.remove('hidden');
+        document.body.classList.remove('locked');
+
+        // Update names
+        document.getElementById('intro-name').innerText = userName;
+        document.getElementById('hero-name').innerText = userName;
+        document.getElementById('nav-name').innerText = userName;
+
+        initMainAnimations();
+
+        // Restore Scroll Position
+        const savedScrollPos = localStorage.getItem('site-scroll-pos');
+        if (savedScrollPos) {
+            // A small delay ensures the content is fully rendered before scrolling
+            setTimeout(() => {
+                window.scrollTo({
+                    top: parseFloat(savedScrollPos),
+                    behavior: 'auto'
+                });
+            }, 100);
+        }
+
+        // Resume Audio if it was playing
+        const playlistAudio = document.getElementById('playlist-audio');
+        if (playlistAudio && wasMusicPlaying) {
+            if (savedMusicTime) playlistAudio.currentTime = parseFloat(savedMusicTime);
+            
+            // Note: Autoplay might still be blocked, so we try to play
+            // and if it fails, the first click will trigger it via musicToggle or other interactions
+            playlistAudio.play().then(() => {
+                isMusicPlaying = true;
+                updateMusicIcon();
+            }).catch(e => {
+                console.log("Autoplay blocked on resume", e);
+                isMusicPlaying = false;
+                updateMusicIcon();
+            });
+        }
+    } else {
+        document.body.classList.add('locked');
+        if (passwordInput) passwordInput.focus();
+    }
 };
 
 // Start Journey Button
@@ -48,6 +99,7 @@ startBtn.addEventListener('click', () => {
         opacity: 0, duration: 0.5, onComplete: () => {
             nameModal.classList.add('hidden');
             nameModal.style.display = 'none';
+            localStorage.setItem('site-unlocked', 'true'); // Save unlock state
             playIntroSequence();
         }
     });
@@ -93,6 +145,7 @@ enterBtn.addEventListener('click', () => {
             if (playlistAudio) {
                 playlistAudio.play().then(() => {
                     isMusicPlaying = true;
+                    localStorage.setItem('music-is-playing', 'true');
                     updateMusicIcon();
                 }).catch(e => console.log("Autoplay blocked", e));
             }
@@ -455,6 +508,16 @@ if (closeVideoBtn) {
                 modalVideoPlayer.src = "";
                 videoModal.classList.add('hidden');
                 document.body.classList.remove('locked');
+
+                // Resume background music if it was playing
+                const playlistAudio = document.getElementById('playlist-audio');
+                const wasMusicPlaying = localStorage.getItem('music-is-playing') === 'true';
+                if (playlistAudio && wasMusicPlaying) {
+                    playlistAudio.play().then(() => {
+                        isMusicPlaying = true;
+                        updateMusicIcon();
+                    }).catch(e => console.log("Music resume failed after video", e));
+                }
             }
         });
     });
@@ -601,14 +664,48 @@ if (musicToggle) {
             if (!playlistAudio.paused) {
                 playlistAudio.pause();
                 isMusicPlaying = false;
+                localStorage.setItem('music-is-playing', 'false');
             } else if (playlistAudio.src) {
                 playlistAudio.play();
                 isMusicPlaying = true;
+                localStorage.setItem('music-is-playing', 'true');
             }
         }
         updateMusicIcon();
     });
 }
+
+// Periodically save music time
+setInterval(() => {
+    const playlistAudio = document.getElementById('playlist-audio');
+    if (playlistAudio && !playlistAudio.paused) {
+        localStorage.setItem('music-current-time', playlistAudio.currentTime);
+    }
+}, 1000);
+
+// Save state on navigation as well
+window.addEventListener('beforeunload', () => {
+    const playlistAudio = document.getElementById('playlist-audio');
+    if (playlistAudio) {
+        localStorage.setItem('music-current-time', playlistAudio.currentTime);
+        localStorage.setItem('music-is-playing', !playlistAudio.paused);
+    }
+    // Save scroll position
+    localStorage.setItem('site-scroll-pos', window.scrollY);
+});
+
+// Throttled scroll saving for extra safety
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+    if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+            if (localStorage.getItem('site-unlocked') === 'true') {
+                localStorage.setItem('site-scroll-pos', window.scrollY);
+            }
+            scrollTimeout = null;
+        }, 1000);
+    }
+}, { passive: true });
 
 // --- NEW PREMIUM EFFECTS ---
 
