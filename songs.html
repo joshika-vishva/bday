@@ -455,8 +455,6 @@
         </p>
     </div>
 
-    <!-- Audio Players -->
-    <audio id="bg-audio" src="assets/Bday/assets/Kannukulla%20-%20NaaSongs.mp3" autoplay loop></audio>
     <audio id="playlist-audio" preload="auto"></audio>
 
     <!-- Bottom Player Bar -->
@@ -479,53 +477,12 @@
 
     <script>
         const playlistAudio = document.getElementById('playlist-audio');
-        const bgAudio = document.getElementById('bg-audio');
         const musicTabs = document.querySelectorAll('.music-tab');
         const songDisplayName = document.getElementById('song-display-name');
         const progressBar = document.getElementById('progress-bar');
         const playerBar = document.getElementById('player-bar');
 
-        // Initial setup for the background music based on shared state
-        window.onload = () => {
-            const savedMusicTime = localStorage.getItem('music-current-time');
-            const wasPlaying = localStorage.getItem('music-is-playing') === 'true';
-
-            if (savedMusicTime && bgAudio) {
-                bgAudio.currentTime = parseFloat(savedMusicTime);
-            }
-
-            if (wasPlaying && bgAudio) {
-                bgAudio.play().then(() => {
-                    playerBar.classList.add('playing');
-                }).catch(e => console.log("Autoplay blocked on songs page", e));
-            }
-        };
-
-        // Periodically save background music time
-        setInterval(() => {
-            if (bgAudio && !bgAudio.paused) {
-                localStorage.setItem('music-current-time', bgAudio.currentTime);
-                localStorage.setItem('music-is-playing', 'true');
-            }
-        }, 1000);
-
-        // Save state on navigation as well
-        window.addEventListener('beforeunload', () => {
-            if (bgAudio) {
-                localStorage.setItem('music-current-time', bgAudio.currentTime);
-                localStorage.setItem('music-is-playing', !bgAudio.paused);
-            }
-        });
-
-        // Play main background song on interaction if blocked
-        document.body.addEventListener('click', () => {
-            if (bgAudio.paused && !Array.from(musicTabs).some(t => t.classList.contains('playing'))) {
-                bgAudio.play().then(() => {
-                    localStorage.setItem('music-is-playing', 'true');
-                }).catch(e => console.log("BG Audio play failed", e));
-            }
-        }, { once: true });
-
+        // Play playlist song on interaction
         function playSong(element) {
             const src = element.getAttribute('data-src');
             const title = element.querySelector('.song-title').textContent;
@@ -533,15 +490,11 @@
             if (element.classList.contains('playing')) {
                 playlistAudio.pause();
                 element.classList.remove('playing');
-                bgAudio.play();
-                localStorage.setItem('music-is-playing', 'true');
-                songDisplayName.textContent = "Background Track";
+                songDisplayName.textContent = "Music Paused";
                 playerBar.classList.remove('playing');
                 return;
             }
 
-            bgAudio.pause();
-            localStorage.setItem('music-is-playing', 'false'); // Currently playlist track is non-persistent for simplicity
             musicTabs.forEach(t => t.classList.remove('playing', 'active'));
 
             if (src) {
@@ -565,23 +518,15 @@
 
         // Progress Bar Update
         playlistAudio.addEventListener('timeupdate', () => {
-            const progress = (playlistAudio.currentTime / playlistAudio.duration) * 100;
-            progressBar.style.width = `${progress}%`;
-        });
-
-        // BG Audio fallback for progress (just visual pulse)
-        bgAudio.addEventListener('timeupdate', () => {
-            if (playlistAudio.paused) {
-                const progress = (bgAudio.currentTime / bgAudio.duration) * 100;
+            if (playlistAudio.duration) {
+                const progress = (playlistAudio.currentTime / playlistAudio.duration) * 100;
                 progressBar.style.width = `${progress}%`;
             }
         });
 
         playlistAudio.addEventListener('ended', () => {
             musicTabs.forEach(t => t.classList.remove('playing'));
-            bgAudio.play();
-            localStorage.setItem('music-is-playing', 'true');
-            songDisplayName.textContent = "Background Track";
+            songDisplayName.textContent = "Select a Song";
             playerBar.classList.remove('playing');
         });
     </script>
