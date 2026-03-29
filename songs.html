@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songs for my Panda 🐼</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #f472b6;
+            --primary-light: #fbcfe8;
+            --accent: #fb7185;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffffff 50%, #fdf2f8 100%) !important;
+            color: #1a1b1e !important;
+            margin: 0;
+            padding: 0;
+            cursor: default !important;
+            overflow-x: hidden;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Ambient Animations */
+        .ambient-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating {
+            position: absolute;
+            opacity: 0.15;
+            animation: float-around 15s linear infinite alternate;
+            filter: blur(1px);
+        }
+
+        .note {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .panda {
+            font-size: 5rem;
+        }
+
+        @keyframes float-around {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 120px) rotate(15deg) scale(1.1);
+            }
+        }
+
+        /* Container */
+        .songs-page-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6rem 2rem 10rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styling */
+        .back-btn {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #1a1b1e;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(15px);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05) translateX(-5px);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 15px 35px rgba(244, 114, 182, 0.3);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 5rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title {
+            font-size: 4.5rem;
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 0.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #1a1b1e, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Main Music Card */
+        .music-showcase {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            padding: 5rem 3rem;
+            box-shadow:
+                0 40px 100px rgba(0, 0, 0, 0.05),
+                inset 0 0 20px rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Grid */
+        .heart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .heart-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .page-title {
+                font-size: 3rem;
+            }
+
+            .music-showcase {
+                padding: 3rem 1.5rem;
+            }
+        }
+
+        .music-tab {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            perspective: 1000px;
+        }
+
+        .emoji-heart-bg {
+            font-size: 12rem;
+            display: block;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.08));
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+        }
+
+        .music-tab:hover {
+            transform: translateY(-10px);
+        }
+
+        .music-tab:hover .emoji-heart-bg {
+            transform: scale(1.1) rotateY(10deg);
+            filter: drop-shadow(0 30px 50px rgba(244, 114, 182, 0.4));
+        }
+
+        .music-tab.active .emoji-heart-bg {
+            animation: heart-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes heart-pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 15px 25px rgba(244, 114, 182, 0.2));
+            }
+
+            50% {
+                transform: scale(1.08);
+                filter: drop-shadow(0 25px 45px rgba(244, 114, 182, 0.5));
+            }
+        }
+
+        .heart-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateY(-10px);
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .song-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #1a1b1e;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.9);
+            letter-spacing: -0.5px;
+        }
+
+        /* Bottom Control Bar */
+        .player-bar {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .current-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mini-heart {
+            font-size: 2rem;
+            animation: spin 3s linear infinite paused;
+        }
+
+        .playing .mini-heart {
+            animation-play-state: running;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .song-display-name {
+            font-weight: 700;
+            color: #1a1b1e;
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 2rem;
+            height: 6px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* UI Polish */
+        .now-playing-label {
+            position: absolute;
+            bottom: -2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1b1e;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            opacity: 0;
+            transition: 0.4s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .music-tab.playing .now-playing-label {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .playing-indicator {
+            display: none;
+            justify-content: center;
+            gap: 4px;
+            height: 18px;
+            margin-top: 8px;
+        }
+
+        .music-tab.playing .playing-indicator {
+            display: flex;
+        }
+
+        .playing-indicator span {
+            width: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: barBounce 1s infinite ease-in-out;
+        }
+
+        @keyframes barBounce {
+
+            0%,
+            100% {
+                height: 8px;
+            }
+
+            50% {
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-elements">
+        <div class="floating panda" style="top: 10%; left: 5%;">🐼</div>
+        <div class="floating note" style="top: 25%; left: 15%; animation-delay: -2s;">♪</div>
+        <div class="floating panda" style="top: 70%; right: 5%; animation-delay: -5s;">🐼</div>
+        <div class="floating note" style="top: 60%; right: 15%; animation-delay: -7s;">♫</div>
+        <div class="floating note" style="top: 40%; left: 80%; animation-delay: -10s;">♬</div>
+        <div class="floating panda" style="top: 30%; right: 30%; font-size: 3rem; animation-delay: -12s;">🐼</div>
+    </div>
+
+    <div class="songs-page-container">
+        <a href="index.html" class="back-btn">
+            <i class="ph-bold ph-arrow-left"></i> BACK TO MEMORIES
+        </a>
+
+        <div class="page-header">
+            <p class="page-subtitle">Musical rhythm for you</p>
+            <h1 class="page-title">Songs for my Panda 🐼</h1>
+        </div>
+
+        <div class="music-showcase">
+            <ul class="heart-grid" id="music-tabs">
+                <li class="music-tab heart-tab" data-src="assets/Bday/assets/bg-music.ogg">
+                    <span class="emoji-heart-bg">❤️‍🩹</span>
+                    <div class="heart-content">
+                        <span class="song-title">Song 1</span>
+                        <div class="playing-indicator">
+                            <span style="animation-delay: 0.1s"></span>
+                            <span style="animation-delay: 0.3s"></span>
+                            <span style="animation-delay: 0.5s"></span>
+                        </div>
+                    </div>
+                    <span class="now-playing-label">SONG 1</span>
+                </li>
+                <li class="music-tab heart-tab" data-src="assets/WhatsApp%20Audio%202026-03-23%20at%204.22.08%20PM.ogg">
+                    <span class="emoji-heart-bg">❤️‍🩹</span>
+                    <div class="heart-content">
+                        <span class="song-title">Song 2</span>
+                        <div class="playing-indicator">
+                            <span style="animation-delay: 0.1s"></span>
+                            <span style="animation-delay: 0.3s"></span>
+                            <span style="animation-delay: 0.5s"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="music-tab heart-tab" data-src="assets/WhatsApp%20Audio%202026-03-28%20at%207.25.09%20PM.ogg">
+                    <span class="emoji-heart-bg">❤️‍🩹</span>
+                    <div class="heart-content">
+                        <span class="song-title">Song 3</span>
+                        <div class="playing-indicator">
+                            <span style="animation-delay: 0.1s"></span>
+                            <span style="animation-delay: 0.3s"></span>
+                            <span style="animation-delay: 0.5s"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="music-tab heart-tab" data-src="assets/WhatsApp%20Audio%202026-03-28%20at%207.25.10%20PM.ogg">
+                    <span class="emoji-heart-bg">❤️‍🩹</span>
+                    <div class="heart-content">
+                        <span class="song-title">Song 4</span>
+                        <div class="playing-indicator">
+                            <span style="animation-delay: 0.1s"></span>
+                            <span style="animation-delay: 0.3s"></span>
+                            <span style="animation-delay: 0.5s"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <p style="margin-top: 4rem; color: #bbb; font-weight: 500; font-size: 1.1rem;">
+            Tap a heart to start the melody... ❤️‍🩹
+        </p>
+    </div>
+
+    <!-- Audio Players -->
+    <audio id="bg-audio" src="assets/Bday/assets/Kannukulla%20-%20NaaSongs.mp3" autoplay loop></audio>
+    <audio id="playlist-audio" preload="auto"></audio>
+
+    <!-- Bottom Player Bar -->
+    <div class="player-bar" id="player-bar">
+        <div class="current-info">
+            <div class="mini-heart">❤️‍🩹</div>
+            <div class="text-info">
+                <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">Now Playing
+                </div>
+                <div class="song-display-name" id="song-display-name">Background Track</div>
+            </div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="controls">
+            <i class="ph-fill ph-music-notes" style="color: var(--primary); font-size: 1.5rem;"></i>
+        </div>
+    </div>
+
+    <script>
+        const playlistAudio = document.getElementById('playlist-audio');
+        const bgAudio = document.getElementById('bg-audio');
+        const musicTabs = document.querySelectorAll('.music-tab');
+        const songDisplayName = document.getElementById('song-display-name');
+        const progressBar = document.getElementById('progress-bar');
+        const playerBar = document.getElementById('player-bar');
+
+        // Play main background song on interaction if blocked
+        document.body.addEventListener('click', () => {
+            if (bgAudio.paused && !Array.from(musicTabs).some(t => t.classList.contains('playing'))) {
+                bgAudio.play().catch(e => console.log("BG Audio play failed", e));
+            }
+        }, { once: true });
+
+        function playSong(element) {
+            const src = element.getAttribute('data-src');
+            const title = element.querySelector('.song-title').textContent;
+
+            if (element.classList.contains('playing')) {
+                playlistAudio.pause();
+                element.classList.remove('playing');
+                bgAudio.play();
+                songDisplayName.textContent = "Background Track";
+                playerBar.classList.remove('playing');
+                return;
+            }
+
+            bgAudio.pause();
+            musicTabs.forEach(t => t.classList.remove('playing', 'active'));
+
+            if (src) {
+                if (!playlistAudio.src.endsWith(src)) {
+                    playlistAudio.src = src;
+                }
+
+                playlistAudio.play().then(() => {
+                    element.classList.add('playing', 'active');
+                    songDisplayName.textContent = title;
+                    playerBar.classList.add('playing');
+                }).catch(e => {
+                    console.log("Audio play failed", e);
+                });
+            }
+        }
+
+        musicTabs.forEach(tab => {
+            tab.addEventListener('click', () => playSong(tab));
+        });
+
+        // Progress Bar Update
+        playlistAudio.addEventListener('timeupdate', () => {
+            const progress = (playlistAudio.currentTime / playlistAudio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+        });
+
+        // BG Audio fallback for progress (just visual pulse)
+        bgAudio.addEventListener('timeupdate', () => {
+            if (playlistAudio.paused) {
+                const progress = (bgAudio.currentTime / bgAudio.duration) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+        });
+
+        playlistAudio.addEventListener('ended', () => {
+            musicTabs.forEach(t => t.classList.remove('playing'));
+            bgAudio.play();
+            songDisplayName.textContent = "Background Track";
+            playerBar.classList.remove('playing');
+        });
+    </script>
+</body>
+
+</html>
