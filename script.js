@@ -88,6 +88,15 @@ enterBtn.addEventListener('click', () => {
             footer.classList.remove('hidden');
             document.body.classList.remove('locked');
 
+            // Play background music on entry
+            const playlistAudio = document.getElementById('playlist-audio');
+            if (playlistAudio) {
+                playlistAudio.play().then(() => {
+                    isMusicPlaying = true;
+                    updateMusicIcon();
+                }).catch(e => console.log("Autoplay blocked", e));
+            }
+
             initMainAnimations();
         }
     });
